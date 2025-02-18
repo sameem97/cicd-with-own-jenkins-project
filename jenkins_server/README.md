@@ -5,7 +5,7 @@
 ## Instance Configuration
 
 - Image: `Ubuntu 22.04 LTS`
-- Size: `t3.micro`
+- Size: `t3.small`
 - VPC: `tech501-sameem-2-subnet-vpc-vpc`
   - Subnet: `tech501-sameem-2-subnet-vpc-subnet-public1-eu-west-1a`
 - NSG rules: allow ssh and http, local machine access only
@@ -16,60 +16,44 @@
 
 ```bash
 sudo apt update
-sudo apt install fontconfig openjdk-17-jre
+sudo apt install openjdk-21-jdk -y
 java -version
-openjdk version "17.0.13" 2024-10-15
-OpenJDK Runtime Environment (build 17.0.13+11-Debian-2)
-OpenJDK 64-Bit Server VM (build 17.0.13+11-Debian-2, mixed mode, sharing)
 ```
 
 ### Jenkins Installation
 
-```bash
-sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
-  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update
-sudo apt-get install jenkins
-```
+1. Add Jenkins Repository
 
-## Configure Nginx Reverse Proxy
-
-- Create new nginx jenkins site.
+- use Jenkins project repository rather than default Ubuntu repository as it is likely to be the latest available version.
+- follow the steps below to add the Jenkins repository to your Ubuntu system.
 
 ```bash
-`sudo nano /etc/nginx/sites-available/jenkins`
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
 ```
 
-- Add the below:
+2. Add the Jenkins software repository to the source list and provide the authentication key.
 
 ```bash
-server {
-    listen 80;
-    server_name your-public-ip-or-domain;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-    }
-}
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+/etc/apt/sources.list.d/jenkins.list > /dev/null
 ```
 
-- Enable the configuration.
+- The command adds the Long Term Support (LTS) stable release to the sources list.
+
+3. Install Jenkins
+
+- update system repository and install.
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/jenkins /etc/nginx/sites-enabled/
-sudo rm /etc/nginx/sites-enabled/default
+sudo apt update
+sudo apt install jenkins -y
 ```
 
-- Restart nginx.
+- check if jenkins is installed and running.
 
 ```bash
-sudo systemctl restart nginx
+sudo systemctl status jenkins
 ```
-
-- Should be able to access nginx at default port 80 now i.e. without specifying 8080.
 
 ## Get Started Commands
 
